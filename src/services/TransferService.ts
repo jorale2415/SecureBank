@@ -57,6 +57,19 @@ export class TransferService {
    * Main transfer method with comprehensive validation and security
    */
   static async executeTransfer(request: TransferRequest): Promise<TransferResponse> {
+    // EMERGENCY CIRCUIT BREAKER - BLOCK ALL TRANSFERS
+    const emergencyMode = localStorage.getItem('EMERGENCY_MODE');
+    if (emergencyMode === 'true') {
+      return {
+        success: false,
+        message: 'System in emergency mode - all transfers blocked',
+        error: {
+          code: 'EMERGENCY_MODE_ACTIVE',
+          message: 'Emergency circuit breaker activated'
+        }
+      };
+    }
+
     const startTime = Date.now();
     let auditLog: AuditLog;
 

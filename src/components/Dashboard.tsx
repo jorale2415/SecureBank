@@ -6,8 +6,33 @@ import AddAccountForm from './AddAccountForm';
 export default function Dashboard() {
   const { user, activeAccount, switchAccount } = useAuth();
   const [showAddAccount, setShowAddAccount] = React.useState(false);
+  const [emergencyMode, setEmergencyMode] = React.useState(false);
+
+  // Check for emergency mode
+  React.useEffect(() => {
+    const isEmergency = localStorage.getItem('EMERGENCY_MODE') === 'true';
+    setEmergencyMode(isEmergency);
+  }, []);
 
   if (!user) return null;
+
+  // Emergency mode banner
+  if (emergencyMode) {
+    return (
+      <div className="min-h-screen bg-red-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md text-center">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-red-800 mb-4">System Emergency Mode</h2>
+          <p className="text-red-700 mb-4">
+            All financial operations have been temporarily suspended for security reasons.
+          </p>
+          <p className="text-sm text-red-600">
+            Please contact system administrator immediately.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Sample recent transactions for dashboard preview
   const recentTransactions = [

@@ -186,6 +186,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateBalance = (accountId: string, newBalance: number) => {
+    // EMERGENCY: Prevent balance updates during dashboard issues
+    const emergencyMode = localStorage.getItem('EMERGENCY_MODE');
+    if (emergencyMode === 'true') {
+      console.warn('Balance update blocked - emergency mode active');
+      return;
+    }
+
     resetSessionTimeout(); // Reset timeout on user activity
     if (user) {
       const updatedAccounts = user.accounts.map(acc => 
