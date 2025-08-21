@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-+import { Clock, Shield, AlertTriangle, CheckCircle, XCircle, Filter, Download } from 'lucide-react';
-+import { useAuth } from '../context/AuthContext';
-+import { TransferService, AuditLog } from '../services/TransferService';
-+
+import { Clock, Shield, AlertTriangle, CheckCircle, XCircle, Filter, Download } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { TransferService, AuditLog } from '../services/TransferService';
+
 +export default function TransferHistory() {
 +  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
 +  const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
