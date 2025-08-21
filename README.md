@@ -1,14 +1,95 @@
 # SecureBank - QA Testing Application
 
 ## Overview
-This is a banking web application specifically designed for QA technical interviews. The application contains intentionally placed bugs for testing purposes.
+This is a banking web application with a robust money transfer system. The application includes comprehensive security features, audit logging, and production-ready transfer functionality.
 
 ## Features
 - User registration and authentication
 - Account dashboard with balance overview
-- Money transfer functionality
+- **Robust Money Transfer System** with comprehensive security
 - Transaction history viewing
+- **Transfer Audit Logging** with detailed security tracking
+- **Rate Limiting** and daily transfer limits
+- **Input Validation** and XSS protection
 - Responsive design (with some intentional issues)
+
+## Money Transfer System
+
+### Core Features
+- **Atomic Transactions**: All-or-nothing transfer processing
+- **Thread Safety**: Concurrent transfer protection with locking mechanisms
+- **Comprehensive Validation**: Amount, account, and user validation
+- **Security Controls**: Authentication, authorization, and rate limiting
+- **Audit Trail**: Complete logging of all transfer attempts and outcomes
+
+### Security Measures
+- **Rate Limiting**: 10 attempts per minute per user
+- **Daily Limits**: $50,000 daily transfer limit per user
+- **Transfer Limits**: $0.01 minimum, $10,000 maximum per transfer
+- **Input Sanitization**: XSS protection and input validation
+- **Authentication**: User verification and account ownership validation
+- **Audit Logging**: Comprehensive security and compliance logging
+
+### Technical Specifications
+
+#### API Design
+```typescript
+interface TransferRequest {
+  fromAccountId: string;
+  toAccountNumber: string;
+  amount: number;
+  description?: string;
+  userId: string;
+}
+
+interface TransferResponse {
+  success: boolean;
+  transactionId?: string;
+  message: string;
+  newBalance?: number;
+  error?: TransferError;
+}
+```
+
+#### Validation Rules
+- Amount: Must be between $0.01 and $10,000
+- Account Numbers: Must be valid 10-digit numbers
+- Daily Limit: Maximum $50,000 per user per day
+- Rate Limit: Maximum 10 attempts per minute per user
+- Self-Transfer: Blocked (cannot transfer to same account)
+- Sufficient Funds: Source account must have adequate balance
+
+#### Error Handling
+- `INSUFFICIENT_FUNDS`: Not enough balance in source account
+- `RATE_LIMIT_EXCEEDED`: Too many transfer attempts
+- `DAILY_LIMIT_EXCEEDED`: Daily transfer limit reached
+- `UNAUTHORIZED`: User not authorized for account access
+- `DESTINATION_ACCOUNT_NOT_FOUND`: Invalid recipient account
+- `SELF_TRANSFER_NOT_ALLOWED`: Attempted self-transfer
+- `INVALID_AMOUNT_FORMAT`: Invalid amount format or range
+- `SYSTEM_ERROR`: Internal system error
+
+#### Database Transaction Structure
+```typescript
+// Atomic operation ensures data consistency
+1. Validate all inputs and business rules
+2. Lock accounts to prevent concurrent modifications
+3. Check sufficient funds
+4. Update source account balance (-amount)
+5. Update destination account balance (+amount)
+6. Create transaction record
+7. Create audit log entry
+8. Release locks
+```
+
+#### Security Implementation
+- **Authentication**: JWT-like session validation
+- **Authorization**: Account ownership verification
+- **Rate Limiting**: Time-window based attempt tracking
+- **Input Validation**: Comprehensive server-side validation
+- **XSS Protection**: Input sanitization and encoding
+- **Audit Logging**: All attempts logged with timestamps and metadata
+- **Session Management**: 30-minute timeout with activity tracking
 
 ## Setup Instructions
 
@@ -93,8 +174,16 @@ Tested on:
 - Safari
 - Edge
 
+## Transfer System Usage
+
+1. **Navigate to Transfer**: Use the Transfer tab in the main navigation
+2. **Select Recipient**: Choose from available accounts using the dropdown
+3. **Enter Amount**: Specify transfer amount (min $0.01, max $10,000)
+4. **Add Description**: Optional description for the transfer
+5. **Submit Transfer**: System validates and processes the transfer
+6. **View Audit Log**: Check the Audit Log tab for detailed transfer history
+
 ## Known Limitations
-- This is a demo application not intended for production use
 - Uses localStorage instead of a real database
 - No actual payment processing
-- Limited security implementation
+- Demo application for educational purposes

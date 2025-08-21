@@ -5,12 +5,13 @@ import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
 import TransferForm from './components/TransferForm';
 import TransactionHistory from './components/TransactionHistory';
+import TransferHistory from './components/TransferHistory';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import LoadingSpinner from './components/LoadingSpinner';
 import NotificationContainer from './components/NotificationContainer';
 
-type ViewType = 'login' | 'register' | 'dashboard' | 'transfer' | 'history';
+type ViewType = 'login' | 'register' | 'dashboard' | 'transfer' | 'history' | 'audit';
 
 function AppContent() {
   const { user, logout, isLoading } = useAuth();
@@ -41,6 +42,7 @@ function AppContent() {
     { id: 'dashboard', label: 'Dashboard', icon: CreditCard },
     { id: 'transfer', label: 'Transfer', icon: ArrowUpDown },
     { id: 'history', label: 'History', icon: History },
+    { id: 'audit', label: 'Audit Log', icon: User },
   ];
 
   return (
@@ -100,6 +102,7 @@ function AppContent() {
         {currentView === 'dashboard' && <Dashboard />}
         {currentView === 'transfer' && <TransferForm />}
         {currentView === 'history' && <TransactionHistory />}
+        {currentView === 'audit' && <TransferHistory />}
       </main>
 
       {isLoading && <LoadingSpinner />}
