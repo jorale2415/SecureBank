@@ -23,6 +23,15 @@ function AppContent() {
     }
   }, [user]);
 
+  useEffect(() => {
+    const handleNavigate = (event: CustomEvent) => {
+      setCurrentView(event.detail as ViewType);
+    };
+
+    window.addEventListener('navigate', handleNavigate as EventListener);
+    return () => window.removeEventListener('navigate', handleNavigate as EventListener);
+  }, []);
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">

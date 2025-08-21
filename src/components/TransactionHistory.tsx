@@ -212,6 +212,16 @@ export default function TransactionHistory() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Transaction History</h1>
+          <div className="flex items-center mt-2">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'dashboard' }))}
+              className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm transition-colors duration-200"
+              aria-label="Go back to dashboard"
+            >
+              <ArrowUpDown className="h-4 w-4 mr-1 rotate-180" />
+              Back to Dashboard
+            </button>
+          </div>
           <p className="text-gray-600 mt-1">
             {filters.accountFilter === 'all' 
               ? 'All Accounts' 
