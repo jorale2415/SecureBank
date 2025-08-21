@@ -493,10 +493,28 @@ export class TransferService {
       const currentUser = JSON.parse(localStorage.getItem('bankingUser') || 'null');
       if (currentUser) {
         // Update the current user session with the latest account balances
+        let updatedCurrentUser = { ...currentUser };
+        let needsUpdate = false;
+        
         if (currentUser.id === sourceUser.id) {
-          localStorage.setItem('bankingUser', JSON.stringify(sourceUser));
-        } else if (currentUser.id === destinationUser.id) {
-          localStorage.setItem('bankingUser', JSON.stringify(destinationUser));
+          updatedCurrentUser = sourceUser;
+          needsUpdate = true;
+        }
+        
+        if (currentUser.id === destinationUser.id) {
+          updatedCurrentUser = destinationUser;
+          needsUpdate = true;
+        }
+        
+        // If current user has accounts in both source and destination, merge the updates
+        if (currentUser.id === sourceUser.id && currentUser.id === destinationUser.id) {
+          // Same user transferring between their own accounts
+          updatedCurrentUser = sourceUser; // sourceUser already has both account updates
+          needsUpdate = true;
+        }
+        
+        if (needsUpdate) {
+          localStorage.setItem('bankingUser', JSON.stringify(updatedCurrentUser));
         }
       }
 
