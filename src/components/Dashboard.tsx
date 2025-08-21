@@ -1,0 +1,266 @@
+import React from 'react';
+import { DollarSign, TrendingUp, ArrowUpDown, Clock, CreditCard, Plus } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import AddAccountForm from './AddAccountForm';
+
+export default function Dashboard() {
+  const { user, activeAccount, switchAccount } = useAuth();
+  const [showAddAccount, setShowAddAccount] = React.useState(false);
+
+  if (!user) return null;
+
+  // Sample recent transactions for dashboard preview
+  const recentTransactions = [
+    {
+      id: '1',
+      description: 'Coffee Shop',
+      amount: -4.50,
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    },
+    {
+      id: '2', 
+      description: 'Salary Deposit',
+      amount: 2500.00,
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+    },
+    {
+      id: '3',
+      description: 'Grocery Store',
+      amount: -67.23,
+      timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Welcome Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Welcome back, {user.firstName}!
+        </h1>
+        <p className="text-gray-600">Here's what's happening with your accounts.</p>
+      </div>
+
+      {/* Account Selector */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">Your Accounts</h3>
+          <button 
+            onClick={() => setShowAddAccount(true)}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Account
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(user?.accounts || []).map((account) => (
+            <div
+              key={account.id}
+              onClick={() => switchAccount(account.id)}
+              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                account.id === user.activeAccountId
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center mb-2">
+                <CreditCard className={`h-5 w-5 mr-2 ${
+                  account.id === user.activeAccountId ? 'text-blue-600' : 'text-gray-400'
+                }`} />
+                <span className="font-medium text-gray-900">{account.accountName}</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-1">
+                ****{account.accountNumber.slice(-4)}
+              </p>
+              <p className="text-lg font-bold text-gray-900">
+                ${account.balance.toFixed(2)}
+              </p>
+              <p className="text-xs text-gray-500 capitalize">
+                {account.accountType} Account
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Account Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <DollarSign className="h-8 w-8 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Active Account Balance</p>
+              <p className="text-2xl font-bold text-gray-900">
+                ${activeAccount?.balance.toFixed(2) || '0.00'}
+              </p>
+              <p className="text-xs text-gray-500">
+                {activeAccount?.accountName}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <TrendingUp className="h-8 w-8 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Account Number</p>
+              <p className="text-xl font-bold text-gray-900">
+                ****{activeAccount?.accountNumber.slice(-4)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <ArrowUpDown className="h-8 w-8 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Quick Transfer</p>
+              <button className="text-blue-600 hover:text-blue-700 font-medium">
+                Send Money
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900">Recent Transactions</h3>
+            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+              View All
+            </button>
+          </div>
+        </div>
+        {recentTransactions.length === 0 ? (
+          <div className="p-8 text-center">
+            <ArrowUpDown className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No recent transactions</h3>
+            <p className="text-gray-600">Your recent transactions will appear here.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date & Time
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Sender
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Receiver
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Credit/Debit
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Transaction Type
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentTransactions.map((transaction) => {
+                  // Determine transaction type and participants
+                  const isUserSender = activeAccount?.accountNumber === transaction.fromAccountNumber;
+                  const isUserReceiver = activeAccount?.accountNumber === transaction.toAccountNumber;
+                  
+                  let transactionType: 'Incoming' | 'Outgoing' | 'Internal Transfer';
+                  let creditDebitType: 'credit' | 'debit';
+                  
+                  if (isUserSender && isUserReceiver) {
+                    transactionType = 'Internal Transfer';
+                    creditDebitType = 'debit';
+                  } else if (isUserSender) {
+                    transactionType = 'Outgoing';
+                    creditDebitType = 'debit';
+                  } else {
+                    transactionType = 'Incoming';
+                    creditDebitType = 'credit';
+                  }
+
+                  return (
+                    <tr key={transaction.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 text-gray-400 mr-2" />
+                          <div>
+                            <div>{transaction.timestamp.toLocaleDateString()}</div>
+                            <div className="text-xs text-gray-500">
+                              {transaction.timestamp.toLocaleTimeString()}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>
+                          <div className="font-medium">
+                            {isUserSender ? `${user?.firstName} ${user?.lastName}` : 'External Account'}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ****{transaction.fromAccountNumber?.slice(-4)}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>
+                          <div className="font-medium">
+                            {isUserReceiver ? `${user?.firstName} ${user?.lastName}` : 'External Account'}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ****{transaction.toAccountNumber?.slice(-4)}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          creditDebitType === 'credit' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {creditDebitType === 'credit' ? 'Credit' : 'Debit'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <span className={creditDebitType === 'credit' ? 'text-green-600' : 'text-red-600'}>
+                          {creditDebitType === 'credit' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          transactionType === 'Incoming' ? 'bg-blue-100 text-blue-800' :
+                          transactionType === 'Outgoing' ? 'bg-orange-100 text-orange-800' :
+                          'bg-purple-100 text-purple-800'
+                        }`}>
+                          {transactionType}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {showAddAccount && (
+        <AddAccountForm onClose={() => setShowAddAccount(false)} />
+      )}
+    </div>
+  );
+}
