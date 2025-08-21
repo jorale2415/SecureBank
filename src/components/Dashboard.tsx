@@ -273,15 +273,14 @@ export default function Dashboard() {
                   let transactionType: 'Incoming' | 'Outgoing' | 'Internal Transfer';
                   let creditDebitType: 'credit' | 'debit';
                   
-                  if (isUserSender && isUserReceiver) {
-                    transactionType = 'Internal Transfer';
-                    creditDebitType = 'debit';
-                  } else if (isUserSender) {
-                    transactionType = 'Outgoing';
-                    creditDebitType = 'debit';
+                  // Since all accounts are within the same bank system, all transfers are internal
+                  transactionType = 'Internal Transfer';
+                  
+                  // Determine credit/debit based on user's perspective
+                  if (isUserSender) {
+                    creditDebitType = 'debit'; // Money leaving user's account
                   } else {
-                    transactionType = 'Incoming';
-                    creditDebitType = 'credit';
+                    creditDebitType = 'credit'; // Money coming into user's account
                   }
 
                   return (
@@ -328,11 +327,7 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          transactionType === 'Incoming' ? 'bg-blue-100 text-blue-800' :
-                          transactionType === 'Outgoing' ? 'bg-orange-100 text-orange-800' :
-                          'bg-purple-100 text-purple-800'
-                        }`}>
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
                           {transactionType}
                         </span>
                       </td>
