@@ -1,12 +1,14 @@
 import React from 'react';
 import { DollarSign, TrendingUp, ArrowUpDown, Clock, CreditCard, Plus, ArrowRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, Transaction } from '../context/AuthContext';
 import AddAccountForm from './AddAccountForm';
 
 export default function Dashboard() {
   const { user, activeAccount, switchAccount } = useAuth();
   const [showAddAccount, setShowAddAccount] = React.useState(false);
   const [emergencyMode, setEmergencyMode] = React.useState(false);
+  const [recentTransactions, setRecentTransactions] = React.useState<Transaction[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = React.useState(true);
 
   // Check for emergency mode
   React.useEffect(() => {
@@ -14,6 +16,68 @@ export default function Dashboard() {
     setEmergencyMode(isEmergency);
   }, []);
 
+  // Load real transactions
+  React.useEffect(() => {
+    if (user && activeAccount) {
+      loadRecentTransactions();
+    }
+  }, [user, activeAccount]);
+
+  const loadRecentTransactions = async () => {
+    setIsLoadingTransactions(true);
+    
+    try {
+      // Simulate loading delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const allTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+      const users = JSON.parse(localStorage.getItem('bankingUsers') || '[]');
+      
+      // Create a map of account numbers to user info for quick lookup
+      const accountToUserMap = new Map();
+      users.forEach((u: any) => {
+        if (u.accounts) {
+          u.accounts.forEach((acc: any) => {
+            accountToUserMap.set(acc.accountNumber, {
+              firstName: u.firstName,
+              lastName: u.lastName,
+              accountName: acc.accountName
+            });
+          });
+        }
+      });
+
+      // Get transactions for active account
+      const relevantTransactions = allTransactions.filter((t: Transaction) => 
+        t.fromAccountNumber === activeAccount?.accountNumber || t.toAccountNumber === activeAccount?.accountNumber
+      );
+
+      // Enhance transactions with sender/receiver names
+      const enhancedTransactions = relevantTransactions.map((t: any) => {
+        const senderInfo = accountToUserMap.get(t.fromAccountNumber);
+        const receiverInfo = accountToUserMap.get(t.toAccountNumber);
+        
+        return {
+          ...t,
+          timestamp: new Date(t.timestamp),
+          senderName: senderInfo ? `${senderInfo.firstName} ${senderInfo.lastName}` : 'External Account',
+          receiverName: receiverInfo ? `${receiverInfo.firstName} ${receiverInfo.lastName}` : 'External Account',
+        };
+      });
+
+      // Sort by timestamp (newest first) and take only the 3 most recent
+      const sortedTransactions = enhancedTransactions
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 3);
+
+      setRecentTransactions(sortedTransactions);
+    } catch (error) {
+      console.error('Failed to load recent transactions:', error);
+      setRecentTransactions([]);
+    } finally {
+      setIsLoadingTransactions(false);
+    }
+  };
   if (!user) return null;
 
   // Emergency mode banner
@@ -33,28 +97,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  // Sample recent transactions for dashboard preview
-  const recentTransactions = [
-    {
-      id: '1',
-      description: 'Coffee Shop',
-      amount: -4.50,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    },
-    {
-      id: '2', 
-      description: 'Salary Deposit',
-      amount: 2500.00,
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    },
-    {
-      id: '3',
-      description: 'Grocery Store',
-      amount: -67.23,
-      timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
-    },
-  ];
 
   return (
     <div className="space-y-6">
@@ -177,7 +219,13 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
-        {recentTransactions.length === 0 ? (
+        
+        {isLoadingTransactions ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+            <span className="text-gray-600">Loading recent transactions...</span>
+          </div>
+        ) : recentTransactions.length === 0 ? (
           <div className="p-8 text-center">
             <ArrowUpDown className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No recent transactions</h3>
@@ -219,8 +267,8 @@ export default function Dashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentTransactions.map((transaction) => {
                   // Determine transaction type and participants
-                  const isUserSender = activeAccount?.accountNumber === transaction.fromAccountNumber;
-                  const isUserReceiver = activeAccount?.accountNumber === transaction.toAccountNumber;
+                  const isUserSender = activeAccount?.accountNumber === (transaction as any).fromAccountNumber;
+                  const isUserReceiver = activeAccount?.accountNumber === (transaction as any).toAccountNumber;
                   
                   let transactionType: 'Incoming' | 'Outgoing' | 'Internal Transfer';
                   let creditDebitType: 'credit' | 'debit';
@@ -251,21 +299,17 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div>
-                          <div className="font-medium">
-                            {isUserSender ? `${user?.firstName} ${user?.lastName}` : 'External Account'}
-                          </div>
+                          <div className="font-medium">{(transaction as any).senderName}</div>
                           <div className="text-xs text-gray-500">
-                            ****{transaction.fromAccountNumber?.slice(-4)}
+                            ****{(transaction as any).fromAccountNumber?.slice(-4)}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div>
-                          <div className="font-medium">
-                            {isUserReceiver ? `${user?.firstName} ${user?.lastName}` : 'External Account'}
-                          </div>
+                          <div className="font-medium">{(transaction as any).receiverName}</div>
                           <div className="text-xs text-gray-500">
-                            ****{transaction.toAccountNumber?.slice(-4)}
+                            ****{(transaction as any).toAccountNumber?.slice(-4)}
                           </div>
                         </div>
                       </td>
@@ -280,7 +324,7 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <span className={creditDebitType === 'credit' ? 'text-green-600' : 'text-red-600'}>
-                          {creditDebitType === 'credit' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                          {creditDebitType === 'credit' ? '+' : '-'}${Math.abs((transaction as any).amount).toFixed(2)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
