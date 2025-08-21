@@ -48,21 +48,10 @@ export default function Dashboard() {
       });
 
       // Get transactions for active account
-      let relevantTransactions;
-      
-      if (filters.accountFilter === 'all') {
-        // Show all transactions for all user's accounts
-        relevantTransactions = allTransactions.filter((t: Transaction) => 
-          user?.accounts?.some(acc => 
-            t.fromAccountNumber === acc.accountNumber || t.toAccountNumber === acc.accountNumber
-          )
-        );
-      } else {
-        // Show transactions for active account only
-        relevantTransactions = allTransactions.filter((t: Transaction) => 
-          t.fromAccountNumber === activeAccount?.accountNumber || t.toAccountNumber === activeAccount?.accountNumber
-        );
-      }
+      // Show transactions for active account only
+      const relevantTransactions = allTransactions.filter((t: Transaction) => 
+        t.fromAccountNumber === activeAccount?.accountNumber || t.toAccountNumber === activeAccount?.accountNumber
+      );
 
       // Enhance transactions with sender/receiver names
       const enhancedTransactions = relevantTransactions.map((t: any) => {
