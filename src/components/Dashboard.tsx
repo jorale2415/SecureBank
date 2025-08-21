@@ -29,6 +29,11 @@ export default function Dashboard() {
       // Reload recent transactions when balance updates
       if (user && activeAccount) {
         loadRecentTransactions();
+        
+        // Force dashboard refresh to show updated balances
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
     };
     

@@ -77,9 +77,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handleBalanceUpdate = (event: CustomEvent) => {
       const { userId, updatedAccounts } = event.detail;
       const currentUser = JSON.parse(localStorage.getItem('bankingUser') || 'null');
-      if (currentUser && currentUser.id === userId) {
+      if (currentUser && currentUser.id === userId && updatedAccounts) {
         const updatedUser = { ...currentUser, accounts: updatedAccounts };
         setUser(updatedUser);
+        
+        // Force component re-render for immediate balance display
+        setTimeout(() => {
+          setUser(prev => prev ? { ...prev } : null);
+        }, 100);
       }
     };
     

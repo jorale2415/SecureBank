@@ -492,27 +492,22 @@ export class TransferService {
       // CRITICAL: Update current user session for both sender and receiver
       const currentUser = JSON.parse(localStorage.getItem('bankingUser') || 'null');
       if (currentUser) {
-        // Check if current user is either sender or receiver
-        const isCurrentUserSender = currentUser.id === sourceUser.id;
-        const isCurrentUserReceiver = currentUser.id === destinationUser.id;
-        
-        if (isCurrentUserSender || isCurrentUserReceiver) {
-          // Find the updated user data from the users array
-          const updatedUser = users.find((u: User) => u.id === currentUser.id);
-          if (updatedUser) {
-            // Remove password field if it exists and update session
-            const { password: _, ...userWithoutPassword } = updatedUser as any;
-            localStorage.setItem('bankingUser', JSON.stringify(userWithoutPassword));
-            
-            // Force a page refresh event to update the UI
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('balanceUpdated', { 
-                detail: { 
-                  userId: currentUser.id,
-                  updatedAccounts: updatedUser.accounts 
-                }
-              }));
-            }
+        // CRITICAL FIX: Always update session if current user is involved in transaction
+        const updatedCurrentUser = users.find((u: User) => u.id === currentUser.id);
+        if (updatedCurrentUser) {
+          // Remove password field and update session with latest account data
+          const { password: _, ...sessionUser } = updatedCurrentUser as any;
+          localStorage.setItem('bankingUser', JSON.stringify(sessionUser));
+          
+          // Dispatch balance update event for immediate UI refresh
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('balanceUpdated', { 
+              detail: { 
+                userId: currentUser.id,
+                updatedAccounts: updatedCurrentUser.accounts,
+                transactionType: 'credit_applied'
+              }
+            }));
           }
         }
       }
