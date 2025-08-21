@@ -72,6 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(JSON.parse(savedUser));
       resetSessionTimeout();
     }
+    
+    // Listen for balance updates from transfer service
+    const handleBalanceUpdate = (event: CustomEvent) => {
+      const { userId, updatedAccounts } = event.detail;
+      const currentUser = JSON.parse(localStorage.getItem('bankingUser') || 'null');
+      if (currentUser && currentUser.id === userId) {
+        const updatedUser = { ...currentUser, accounts: updatedAccounts };
+        setUser(updatedUser);
+      }
+    };
+    
+    window.addEventListener('balanceUpdated', handleBalanceUpdate as EventListener);
+    return () => window.removeEventListener('balanceUpdated', handleBalanceUpdate as EventListener);
   }, []);
 
   useEffect(() => {

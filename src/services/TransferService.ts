@@ -489,15 +489,31 @@ export class TransferService {
       localStorage.setItem('bankingUsers', JSON.stringify(users));
       localStorage.setItem('transactions', JSON.stringify(transactions));
 
-      // Update current user session if applicable
+      // CRITICAL: Update current user session for both sender and receiver
       const currentUser = JSON.parse(localStorage.getItem('bankingUser') || 'null');
       if (currentUser) {
-        // Find the updated user data from the users array
-        const updatedUser = users.find((u: User) => u.id === currentUser.id);
-        if (updatedUser) {
-          // Remove password field if it exists and update session
-          const { password: _, ...userWithoutPassword } = updatedUser as any;
-          localStorage.setItem('bankingUser', JSON.stringify(userWithoutPassword));
+        // Check if current user is either sender or receiver
+        const isCurrentUserSender = currentUser.id === sourceUser.id;
+        const isCurrentUserReceiver = currentUser.id === destinationUser.id;
+        
+        if (isCurrentUserSender || isCurrentUserReceiver) {
+          // Find the updated user data from the users array
+          const updatedUser = users.find((u: User) => u.id === currentUser.id);
+          if (updatedUser) {
+            // Remove password field if it exists and update session
+            const { password: _, ...userWithoutPassword } = updatedUser as any;
+            localStorage.setItem('bankingUser', JSON.stringify(userWithoutPassword));
+            
+            // Force a page refresh event to update the UI
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('balanceUpdated', { 
+                detail: { 
+                  userId: currentUser.id,
+                  updatedAccounts: updatedUser.accounts 
+                }
+              }));
+            }
+          }
         }
       }
 

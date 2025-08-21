@@ -22,6 +22,19 @@ export default function Dashboard() {
       loadRecentTransactions();
     }
   }, [user, activeAccount]);
+  
+  // Listen for balance updates and reload data
+  React.useEffect(() => {
+    const handleBalanceUpdate = () => {
+      // Reload recent transactions when balance updates
+      if (user && activeAccount) {
+        loadRecentTransactions();
+      }
+    };
+    
+    window.addEventListener('balanceUpdated', handleBalanceUpdate);
+    return () => window.removeEventListener('balanceUpdated', handleBalanceUpdate);
+  }, [user, activeAccount]);
 
   const loadRecentTransactions = async () => {
     setIsLoadingTransactions(true);
