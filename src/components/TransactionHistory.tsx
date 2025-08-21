@@ -46,8 +46,8 @@ export default function TransactionHistory() {
   const loadTransactions = async () => {
     setIsLoading(true);
     
-    // Simulate slow loading
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Reduced loading time for better user experience
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     const allTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
     const users = JSON.parse(localStorage.getItem('bankingUsers') || '[]');
@@ -112,8 +112,10 @@ export default function TransactionHistory() {
     });
 
     // BUG #3: Transaction history shows transfers in wrong order (newest last instead of first)
-    // .reverse() is commented out, so newest transactions appear last
-    const sortedTransactions = enhancedTransactions; // .reverse();
+    // Sort transactions by timestamp in descending order (newest first)
+    const sortedTransactions = enhancedTransactions.sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
 
     setTransactions(sortedTransactions);
     setIsLoading(false);

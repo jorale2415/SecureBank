@@ -23,11 +23,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     
     setNotifications(prev => [...prev, newNotification]);
     
-    // BUG #5: Success/error messages don't auto-dismiss and stack up
-    // Auto-dismiss is commented out intentionally
-    // setTimeout(() => {
-    //   removeNotification(id);
-    // }, 5000);
+    // Auto-dismiss notifications after 5 seconds
+    setTimeout(() => {
+      removeNotification(id);
+    }, 5000);
   };
 
   const removeNotification = (id: string) => {

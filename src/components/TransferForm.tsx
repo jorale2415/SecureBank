@@ -17,6 +17,17 @@ export default function TransferForm() {
     
     if (!user || !activeAccount) return;
 
+    // Server-side validation to prevent bypassed client-side validation
+    if (!recipientAccount.trim()) {
+      addNotification('Recipient account number is required', 'error');
+      return;
+    }
+
+    if (!amount.trim() || isNaN(parseFloat(amount))) {
+      addNotification('Valid transfer amount is required', 'error');
+      return;
+    }
+
     setIsLoading(true);
     
     // Simulate processing delay
@@ -31,21 +42,20 @@ export default function TransferForm() {
       setIsLoading(false);
       return;
     }
-    // BUG #1: Transfer to self should be blocked but isn't
-    // This check is commented out
-    // if (recipientAccount === activeAccount.accountNumber) {
-    //   addNotification('Cannot transfer to your own account', 'error');
-    //   setIsLoading(false);
-    //   return;
-    // }
+    
+    // Prevent self-transfers
+    if (recipientAccount === activeAccount.accountNumber) {
+      addNotification('Cannot transfer to your own account', 'error');
+      setIsLoading(false);
+      return;
+    }
 
-    // BUG #2: Negative transfer amounts are accepted
-    // The check below is commented out
-    // if (transferAmount <= 0) {
-    //   addNotification('Transfer amount must be positive', 'error');
-    //   setIsLoading(false);
-    //   return;
-    // }
+    // Validate positive transfer amounts
+    if (transferAmount <= 0) {
+      addNotification('Transfer amount must be positive', 'error');
+      setIsLoading(false);
+      return;
+    }
 
     if (transferAmount > activeAccount.balance) {
       addNotification('Insufficient funds', 'error');
@@ -64,7 +74,7 @@ export default function TransferForm() {
       fromAccountNumber: activeAccount.accountNumber,
       toAccountNumber: recipientAccount,
       amount: transferAmount,
-      description: description || 'Money transfer',
+      description: (description || 'Money transfer').replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').replace(/[<>]/g, ''),
       timestamp: new Date(),
       type: 'debit'
     };
@@ -129,7 +139,15 @@ export default function TransferForm() {
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="0.00"
                 step="0.01"
-                min="0"
+                min="0.01"
+                onInput={(e) => {
+                  // Prevent scientific notation input
+                  const target = e.target as HTMLInputElement;
+                  if (target.value.includes('e') || target.value.includes('E')) {
+                    target.value = target.value.replace(/[eE]/g, '');
+                    setAmount(target.value);
+                  }
+                }}
                 required
               />
             </div>
@@ -155,14 +173,14 @@ export default function TransferForm() {
           </div>
 
           {/* BUG #6: Mobile responsive layout breaks on transfer form */}
-          <div className="flex justify-between items-center pt-4 border-t space-x-4 overflow-hidden">
-            <div className="text-sm text-gray-600 whitespace-nowrap min-w-0 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-4 border-t space-y-3 sm:space-y-0 sm:space-x-4">
+            <div className="text-sm text-gray-600 text-center sm:text-left">
               Transfer fee: $0.00
             </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center whitespace-nowrap"
+              className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isLoading ? (
                 <>

@@ -46,15 +46,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState<NodeJS.Timeout | null>(null);
   
   const activeAccount = user?.accounts?.find(acc => acc.id === user.activeAccountId) || null;
+
+  // Session timeout management
+  const resetSessionTimeout = () => {
+    if (sessionTimeout) {
+      clearTimeout(sessionTimeout);
+    }
+    
+    if (user) {
+      const timeout = setTimeout(() => {
+        logout();
+        // Note: In a real app, you'd show a session timeout notification
+      }, 30 * 60 * 1000); // 30 minutes
+      
+      setSessionTimeout(timeout);
+    }
+  };
 
   useEffect(() => {
     const savedUser = localStorage.getItem('bankingUser');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+      resetSessionTimeout();
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      resetSessionTimeout();
+    }
+  }, [user]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
@@ -101,7 +125,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { password: _, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
       localStorage.setItem('bankingUser', JSON.stringify(userWithoutPassword));
-      setIsLoading(false);
+      // Clear loading state after successful login
+      setTimeout(() => setIsLoading(false), 100);
       return true;
     }
     
@@ -151,12 +176,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    if (sessionTimeout) {
+      clearTimeout(sessionTimeout);
+      setSessionTimeout(null);
+    }
     setUser(null);
     localStorage.removeItem('bankingUser');
     setIsLoading(false); // Clear loading state on logout
   };
 
   const updateBalance = (accountId: string, newBalance: number) => {
+    resetSessionTimeout(); // Reset timeout on user activity
     if (user) {
       const updatedAccounts = user.accounts.map(acc => 
         acc.id === accountId ? { ...acc, balance: newBalance } : acc
@@ -175,6 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const switchAccount = (accountId: string) => {
+    resetSessionTimeout(); // Reset timeout on user activity
     if (user) {
       const updatedUser = { ...user, activeAccountId: accountId };
       setUser(updatedUser);

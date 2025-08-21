@@ -28,8 +28,8 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
 
   // BUG #7: Email validation accepts invalid formats
   const isValidEmail = (email: string) => {
-    // This regex is intentionally flawed - accepts "test@" as valid
-    return /\S+@/.test(email);
+    // Proper email validation with domain requirement
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,12 +45,21 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       return;
     }
 
-    // BUG #8: Password requirements shown but not enforced
-    // The validation below is commented out but requirements are still displayed
-    // if (formData.password.length < 8) {
-    //   addNotification('Password must be at least 8 characters', 'error');
-    //   return;
-    // }
+    // Enforce password requirements
+    if (formData.password.length < 8) {
+      addNotification('Password must be at least 8 characters', 'error');
+      return;
+    }
+
+    const hasUppercase = /[A-Z]/.test(formData.password);
+    const hasLowercase = /[a-z]/.test(formData.password);
+    const hasNumber = /\d/.test(formData.password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
+      addNotification('Password must contain uppercase, lowercase, number, and special character', 'error');
+      return;
+    }
 
     const success = await register({
       firstName: formData.firstName,
@@ -87,6 +96,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               value={formData.firstName}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+             aria-label="First Name"
               required
             />
           </div>
@@ -101,6 +111,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               value={formData.lastName}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+             aria-label="Last Name"
               required
             />
           </div>
@@ -117,6 +128,8 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             value={formData.email}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           aria-label="Email Address"
+           aria-describedby="email-requirements"
             required
           />
         </div>
@@ -133,6 +146,8 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               value={formData.password}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+             aria-label="Password"
+             aria-describedby="password-requirements"
               required
             />
             <button
@@ -163,6 +178,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             value={formData.confirmPassword}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           aria-label="Confirm Password"
             required
           />
         </div>

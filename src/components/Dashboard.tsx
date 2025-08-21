@@ -58,7 +58,7 @@ export default function Dashboard() {
             <div
               key={account.id}
               onClick={() => switchAccount(account.id)}
-              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+              className={`p-4 rounded-lg border-2 cursor-pointer transition-all w-full ${
                 account.id === user.activeAccountId
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
