@@ -48,20 +48,54 @@ export default function Dashboard() {
       });
 
       // Get transactions for active account
-      const relevantTransactions = allTransactions.filter((t: Transaction) => 
-        t.fromAccountNumber === activeAccount?.accountNumber || t.toAccountNumber === activeAccount?.accountNumber
-      );
+      let relevantTransactions;
+      
+      if (filters.accountFilter === 'all') {
+        // Show all transactions for all user's accounts
+        relevantTransactions = allTransactions.filter((t: Transaction) => 
+          user?.accounts?.some(acc => 
+            t.fromAccountNumber === acc.accountNumber || t.toAccountNumber === acc.accountNumber
+          )
+        );
+      } else {
+        // Show transactions for active account only
+        relevantTransactions = allTransactions.filter((t: Transaction) => 
+          t.fromAccountNumber === activeAccount?.accountNumber || t.toAccountNumber === activeAccount?.accountNumber
+        );
+      }
 
       // Enhance transactions with sender/receiver names
       const enhancedTransactions = relevantTransactions.map((t: any) => {
         const senderInfo = accountToUserMap.get(t.fromAccountNumber);
         const receiverInfo = accountToUserMap.get(t.toAccountNumber);
         
+        // Determine transaction type and credit/debit from active account perspective
+        const isUserSender = activeAccount?.accountNumber === t.fromAccountNumber;
+        const isUserReceiver = activeAccount?.accountNumber === t.toAccountNumber;
+        
+        let creditDebitType: 'credit' | 'debit';
+        
+        if (isUserSender) {
+          creditDebitType = 'debit'; // Money leaving user's account
+        } else if (isUserReceiver) {
+          creditDebitType = 'credit'; // Money coming into user's account
+        } else {
+          // For 'all accounts' view, determine based on which account is the user's
+          const userAccountNumbers = user?.accounts?.map(acc => acc.accountNumber) || [];
+          if (userAccountNumbers.includes(t.fromAccountNumber)) {
+            creditDebitType = 'debit';
+          } else {
+            creditDebitType = 'credit';
+          }
+        }
+        
         return {
           ...t,
           timestamp: new Date(t.timestamp),
           senderName: senderInfo ? `${senderInfo.firstName} ${senderInfo.lastName}` : 'External Account',
           receiverName: receiverInfo ? `${receiverInfo.firstName} ${receiverInfo.lastName}` : 'External Account',
+          creditDebitType,
+          transactionType: 'Internal Transfer' as const
         };
       });
 
@@ -266,22 +300,7 @@ export default function Dashboard() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentTransactions.map((transaction) => {
-                  // Determine transaction type and participants
-                  const isUserSender = activeAccount?.accountNumber === (transaction as any).fromAccountNumber;
-                  const isUserReceiver = activeAccount?.accountNumber === (transaction as any).toAccountNumber;
-                  
-                  let transactionType: 'Incoming' | 'Outgoing' | 'Internal Transfer';
-                  let creditDebitType: 'credit' | 'debit';
-                  
-                  // Since all accounts are within the same bank system, all transfers are internal
-                  transactionType = 'Internal Transfer';
-                  
-                  // Determine credit/debit based on user's perspective
-                  if (isUserSender) {
-                    creditDebitType = 'debit'; // Money leaving user's account
-                  } else {
-                    creditDebitType = 'credit'; // Money coming into user's account
-                  }
+                  const enhancedTransaction = transaction as any;
 
                   return (
                     <tr key={transaction.id} className="hover:bg-gray-50">
@@ -314,21 +333,21 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          creditDebitType === 'credit' 
+                          enhancedTransaction.creditDebitType === 'credit' 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {creditDebitType === 'credit' ? 'Credit' : 'Debit'}
+                          {enhancedTransaction.creditDebitType === 'credit' ? 'Credit' : 'Debit'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <span className={creditDebitType === 'credit' ? 'text-green-600' : 'text-red-600'}>
-                          {creditDebitType === 'credit' ? '+' : '-'}${Math.abs((transaction as any).amount).toFixed(2)}
+                        <span className={enhancedTransaction.creditDebitType === 'credit' ? 'text-green-600' : 'text-red-600'}>
+                          {enhancedTransaction.creditDebitType === 'credit' ? '+' : '-'}${Math.abs((transaction as any).amount).toFixed(2)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                          {transactionType}
+                          {enhancedTransaction.transactionType}
                         </span>
                       </td>
                     </tr>

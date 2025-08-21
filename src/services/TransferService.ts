@@ -491,8 +491,13 @@ export class TransferService {
 
       // Update current user session if applicable
       const currentUser = JSON.parse(localStorage.getItem('bankingUser') || 'null');
-      if (currentUser && currentUser.id === sourceUser.id) {
-        localStorage.setItem('bankingUser', JSON.stringify(sourceUser));
+      if (currentUser) {
+        // Update the current user session with the latest account balances
+        if (currentUser.id === sourceUser.id) {
+          localStorage.setItem('bankingUser', JSON.stringify(sourceUser));
+        } else if (currentUser.id === destinationUser.id) {
+          localStorage.setItem('bankingUser', JSON.stringify(destinationUser));
+        }
       }
 
       return {
