@@ -8,6 +8,7 @@ import RegisterForm from './components/RegisterForm';
 import TransferForm from './components/TransferForm';
 import TransactionHistory from './components/TransactionHistory';
 import TransferHistory from './components/TransferHistory';
+import StatementGenerator from './components/StatementGenerator';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationContainer from './components/NotificationContainer';
@@ -37,6 +38,9 @@ export default function App() {
               </Route>
               <Route path="history" element={<Layout />}>
                 <Route index element={<TransactionHistory />} />
+              </Route>
+              <Route path="statements" element={<Layout />}>
+                <Route index element={<StatementGenerator />} />
               </Route>
               <Route path="audit" element={<Layout />}>
                 <Route index element={<TransferHistory />} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { User, CreditCard, ArrowUpDown, History, LogOut } from 'lucide-react';
+import { User, CreditCard, ArrowUpDown, History, LogOut, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NavigationHelper from './NavigationHelper';
 
@@ -13,6 +13,7 @@ export default function Layout() {
     { id: 'dashboard', label: 'Dashboard', icon: CreditCard, path: '/dashboard' },
     { id: 'transfer', label: 'Transfer', icon: ArrowUpDown, path: '/transfer' },
     { id: 'history', label: 'History', icon: History, path: '/history' },
+    { id: 'statements', label: 'Statements', icon: FileText, path: '/statements' },
     { id: 'audit', label: 'Audit Log', icon: User, path: '/audit' },
   ];
 

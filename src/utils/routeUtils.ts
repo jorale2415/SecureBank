@@ -10,6 +10,7 @@ export const ROUTES = {
   HOME: '/dashboard', // Alias for dashboard
   TRANSFER: '/transfer',
   HISTORY: '/history',
+  STATEMENTS: '/statements',
   AUDIT: '/audit'
 } as const;
 
