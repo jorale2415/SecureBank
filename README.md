@@ -183,6 +183,25 @@ Tested on:
 5. **Submit Transfer**: System validates and processes the transfer
 6. **View Audit Log**: Check the Audit Log tab for detailed transfer history
 
+## Analytics System Usage
+
+1. **Navigate to Analytics**: Use the Analytics tab in the main navigation
+2. **View Overview**: See spending summaries, insights, and top categories
+3. **Explore Categories**: Interactive pie charts and category breakdowns
+4. **Analyze Trends**: Time-series charts showing spending patterns over time
+5. **Manage Budgets**: Set monthly spending limits and track progress
+6. **View Predictions**: AI-powered forecasts for future spending patterns
+7. **Export Data**: Download analytics data in CSV or JSON format
+
+### Analytics Features
+- **Smart Categorization**: Automatic transaction categorization based on merchant data
+- **Interactive Charts**: Pie charts, bar charts, and trend lines with hover effects
+- **Budget Tracking**: Set spending limits with progress monitoring and alerts
+- **Predictive Analytics**: Machine learning-based spending forecasts
+- **Insights Engine**: AI-generated recommendations and spending alerts
+- **Data Export**: Export analytics data for external analysis
+- **Responsive Design**: Optimized for mobile and desktop viewing
+
 ## Known Limitations
 - Uses localStorage instead of a real database
 - No actual payment processing
