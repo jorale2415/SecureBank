@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, Shield, AlertTriangle, CheckCircle, XCircle, Filter, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { TransferService, AuditLog } from '../services/TransferService';
 
 export default function TransferHistory() {
+  const navigate = useNavigate();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,7 +138,7 @@ export default function TransferHistory() {
           <h1 className="text-2xl font-bold text-gray-900">Transfer History & Audit Log</h1>
           <div className="flex items-center mt-2">
             <button
-              onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'dashboard' }))}
+              onClick={() => navigate('/dashboard')}
               className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm transition-colors duration-200"
               aria-label="Go back to dashboard"
             >

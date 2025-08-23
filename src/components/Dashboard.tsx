@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DollarSign, TrendingUp, ArrowUpDown, Clock, CreditCard, Plus, ArrowRight } from 'lucide-react';
 import { useAuth, Transaction } from '../context/AuthContext';
 import AddAccountForm from './AddAccountForm';
 
 export default function Dashboard() {
   const { user, activeAccount, switchAccount } = useAuth();
+  const navigate = useNavigate();
   const [showAddAccount, setShowAddAccount] = React.useState(false);
   const [emergencyMode, setEmergencyMode] = React.useState(false);
   const [recentTransactions, setRecentTransactions] = React.useState<Transaction[]>([]);
@@ -233,7 +235,7 @@ export default function Dashboard() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Quick Transfer</p>
               <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'transfer' }))}
+                onClick={() => navigate('/transfer')}
                 className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm transition-colors duration-200"
                 aria-label="Go to transfer money page"
               >
@@ -251,7 +253,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium text-gray-900">Recent Transactions</h3>
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'history' }))}
+              onClick={() => navigate('/history')}
               className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
               aria-label="View all transactions in history page"
             >
@@ -272,7 +274,7 @@ export default function Dashboard() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">No recent transactions</h3>
             <p className="text-gray-600 mb-4">Your recent transactions will appear here.</p>
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'transfer' }))}
+              onClick={() => navigate('/transfer')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
               aria-label="Start your first money transfer"
             >
