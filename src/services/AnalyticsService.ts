@@ -140,7 +140,8 @@ export class AnalyticsService {
     userId: string,
     startDate: Date,
     endDate: Date,
-    accountId?: string
+    accountId?: string,
+    isRecursiveCall: boolean = false
   ): SpendingData[] {
     // Filter transactions for the specified period and user
     const filteredTransactions = transactions.filter(t => {
@@ -173,17 +174,20 @@ export class AnalyticsService {
     const totalSpent = Array.from(categoryTotals.values())
       .reduce((sum, cat) => sum + cat.amount, 0);
 
-    // Calculate previous period for trend analysis
-    const periodLength = endDate.getTime() - startDate.getTime();
-    const prevStartDate = new Date(startDate.getTime() - periodLength);
-    const prevEndDate = new Date(startDate.getTime());
-    
-    const prevPeriodData = this.getSpendingByCategory(
-      transactions, userId, prevStartDate, prevEndDate, accountId
-    );
-    const prevTotalsByCategory = new Map(
-      prevPeriodData.map(d => [d.category, d.amount])
-    );
+    // Calculate previous period for trend analysis (only for top-level calls)
+    let prevTotalsByCategory = new Map<string, number>();
+    if (!isRecursiveCall) {
+      const periodLength = endDate.getTime() - startDate.getTime();
+      const prevStartDate = new Date(startDate.getTime() - periodLength);
+      const prevEndDate = new Date(startDate.getTime());
+      
+      const prevPeriodData = this.getSpendingByCategory(
+        transactions, userId, prevStartDate, prevEndDate, accountId, true
+      );
+      prevTotalsByCategory = new Map(
+        prevPeriodData.map(d => [d.category, d.amount])
+      );
+    }
 
     // Convert to SpendingData array
     const result: SpendingData[] = [];
