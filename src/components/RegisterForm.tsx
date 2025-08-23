@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
-interface RegisterFormProps {
-  onSwitchToLogin: () => void;
-}
-
-export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
+export default function RegisterForm() {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -18,6 +15,7 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const { register } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -70,11 +68,16 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
 
     if (success) {
       addNotification('Account created successfully!', 'success');
+      navigate('/dashboard');
     } else {
       addNotification('An account with this email already exists', 'error');
     }
   };
 
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-xl p-8">
   return (
     <div className="bg-white rounded-lg shadow-xl p-8">
       <div className="text-center mb-8">
@@ -192,12 +195,12 @@ export default function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
       </form>
 
       <div className="mt-6 text-center">
-        <button
-          onClick={onSwitchToLogin}
+        <Link
+          to="/login"
           className="text-blue-600 hover:text-blue-500 text-sm"
         >
           Already have an account? Sign in
-        </button>
+        </Link>
       </div>
     </div>
   );

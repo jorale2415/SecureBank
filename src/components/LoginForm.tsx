@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 
-interface LoginFormProps {
-  onSwitchToRegister: () => void;
-}
-
-export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the page user was trying to access before login
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,11 +22,16 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     const success = await login(email, password);
     if (success) {
       addNotification('Login successful!', 'success');
+      navigate(from, { replace: true });
     } else {
       addNotification('Invalid email or password', 'error');
     }
   };
 
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-xl p-8">
   return (
     <div className="bg-white rounded-lg shadow-xl p-8">
       <div className="text-center mb-8">
@@ -88,12 +95,12 @@ export default function LoginForm({ onSwitchToRegister }: LoginFormProps) {
       </form>
 
       <div className="mt-6 text-center">
-        <button
-          onClick={onSwitchToRegister}
+        <Link
+          to="/register"
           className="text-blue-600 hover:text-blue-500 text-sm"
         >
           Don't have an account? Sign up
-        </button>
+        </Link>
       </div>
 
       {/* Demo credentials */}
