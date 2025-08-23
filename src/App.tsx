@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DollarSign, TrendingUp, ArrowUpDown, Clock, CreditCard, Plus, ArrowRight } from 'lucide-react';
 import { useAuth, Transaction } from './context/AuthContext';
-import AddAccountForm from './AddAccountForm';
+import AddAccountForm from './components/AddAccountForm';
 
 export default function Dashboard() {
   const { user, activeAccount, switchAccount } = useAuth();
