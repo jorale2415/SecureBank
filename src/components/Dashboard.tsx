@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DollarSign, TrendingUp, ArrowUpDown, Clock, CreditCard, Plus, ArrowRight } from 'lucide-react';
+import { DollarSign, TrendingUp, ArrowUpDown, Clock, CreditCard, Plus, ArrowRight, FileText } from 'lucide-react';
 import { useAuth, Transaction } from '../context/AuthContext';
 import AddAccountForm from './AddAccountForm';
 
@@ -230,16 +230,16 @@ export default function Dashboard() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <ArrowUpDown className="h-8 w-8 text-purple-600" />
+              <FileText className="h-8 w-8 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Quick Transfer</p>
+              <p className="text-sm font-medium text-gray-500">Account Statements</p>
               <button 
-                onClick={() => navigate('/transfer')}
+                onClick={() => navigate('/statements')}
                 className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm transition-colors duration-200"
-                aria-label="Go to transfer money page"
+                aria-label="Go to statements page"
               >
-                Send Money
+                Generate Statement
                 <ArrowRight className="ml-1 h-4 w-4" />
               </button>
             </div>
