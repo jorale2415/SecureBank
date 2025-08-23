@@ -275,7 +275,6 @@ export default function Dashboard() {
             <p className="text-gray-600 mb-4">Your recent transactions will appear here.</p>
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent('navigate', { detail: 'transfer' }))}
-            <Route path="home" element={<Dashboard />} />
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
               aria-label="Start your first money transfer"
             >
