@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { User, CreditCard, ArrowUpDown, History, LogOut, FileText } from 'lucide-react';
+import { User, CreditCard, ArrowUpDown, History, LogOut, FileText, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NavigationHelper from './NavigationHelper';
 
