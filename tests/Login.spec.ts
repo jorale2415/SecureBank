@@ -29,7 +29,7 @@ class LoginPage {
    * Navigate to login page
    */
   async goto() {
-    await this.page.goto('http://localhost:5173/Login');
+    await this.page.goto('/Login');
     await this.page.waitForLoadState('networkidle');
   }
 
@@ -114,7 +114,7 @@ class DashboardPage {
    * Wait for dashboard to load completely
    */
   async waitForDashboardLoad() {
-    await this.page.waitForURL('http://localhost:5173http://localhost:5173/Login');
+    await this.page.waitForURL('/Login');
     await this.welcomeMessage.waitFor({ state: 'visible', timeout: 10000 });
     await this.page.waitForLoadState('networkidle');
   }
@@ -143,7 +143,7 @@ class DashboardPage {
    */
   async logout() {
     await this.logoutButton.click();
-    await this.page.waitForURL('http://localhost:5173/Login');
+    await this.page.waitForURL('/Login');
   }
 }
 
@@ -181,7 +181,7 @@ test.describe('Login Functionality', () => {
   // test.afterEach(async ({ page }) => {
   //   // Clean up: logout if logged in, clear any stored data
   //   try {
-  //     if (page.url().includes('http://localhost:5173/dashboard')) {
+  //     if (page.url().includes('/dashboard')) {
   //       await dashboardPage.logout();
   //     }
   //   } catch {
@@ -221,7 +221,7 @@ test.describe('Login Functionality', () => {
     // await dashboardPage.waitForDashboardLoad();
     
     // Verify user is on dashboard page
-    await expect(page).toHaveURL('http://localhost:5173/dashboard');
+    await expect(page).toHaveURL('/dashboard');
     
     // Verify dashboard elements are visible
     await expect(dashboardPage.welcomeMessage).toBeVisible();
@@ -242,7 +242,7 @@ test.describe('Login Functionality', () => {
     expect(errorMessage).toContain('Invalid email or password');
 
     // Verify user remains on login page
-    await expect(page).toHaveURL('http://localhost:5173/Login');
+    await expect(page).toHaveURL('/Login');
     await expect(loginPage.emailInput).toBeVisible();
     
     // Verify form fields retain values (email should be cleared or retain invalid value)
@@ -259,7 +259,7 @@ test.describe('Login Functionality', () => {
     expect(errorMessage).toContain('Invalid email or password');
 
     // Verify user remains on login page
-    await expect(page).toHaveURL('http://localhost:5173/Login');
+    await expect(page).toHaveURL('/Login');
     await expect(loginPage.emailInput).toBeVisible();
 
     // Verify email field retains the valid email
@@ -277,7 +277,7 @@ test.describe('Login Functionality', () => {
     expect(emailValidationMessage).toBeTruthy();
 
     // Verify user remains on login page
-    await expect(page).toHaveURL('http://localhost:5173/Login');
+    await expect(page).toHaveURL('/Login');
     await expect(loginPage.emailInput).toBeVisible();
   });
 
@@ -291,7 +291,7 @@ test.describe('Login Functionality', () => {
     expect(emailValidationMessage).toContain('Please fill out this field');
 
     // Verify user remains on login page
-    await expect(page).toHaveURL('http://localhost:5173/Login');
+    await expect(page).toHaveURL('/Login');
   });
 
   test('should fail login with empty password only', async ({ page }) => {
@@ -304,7 +304,7 @@ test.describe('Login Functionality', () => {
     expect(passwordValidationMessage).toContain('Please fill out this field');
 
     // Verify user remains on login page
-    await expect(page).toHaveURL('http://localhost:5173/Login');
+    await expect(page).toHaveURL('/Login');
   });
 
   test('should toggle password visibility', async ({ page }) => {
@@ -346,7 +346,7 @@ test.describe('Login Functionality', () => {
 
     // Verify successful login after loading
     await dashboardPage.waitForDashboardLoad();
-    await expect(page).toHaveURL('http://localhost:5173/dashboard');
+    await expect(page).toHaveURL('/dashboard');
   });
 
   test('should navigate to register page', async ({ page }) => {
@@ -403,13 +403,13 @@ test.describe('Login Functionality', () => {
     await page.goto('/transfer');
     
     // Should be redirected to login page
-    await expect(page).toHaveURL('http://localhost:5173/Login');
+    await expect(page).toHaveURL('/Login');
 
     // Login with valid credentials
     await loginPage.login(VALID_CREDENTIALS.email, VALID_CREDENTIALS.password);
 
     // Should be redirected to dashboard (default) since transfer was accessed directly
-    await expect(page).toHaveURL('http://localhost:5173http://localhost:5173/Login');
+    await expect(page).toHaveURL('/dashboard');
     await expect(dashboardPage.welcomeMessage).toBeVisible();
   });
 });
@@ -446,7 +446,7 @@ test.describe('Login Accessibility and Edge Cases', () => {
     await page.keyboard.press('Enter');
 
     // Verify successful login
-    await page.waitForURL('http://localhost:5173http://localhost:5173/Login');
+    await page.waitForURL('/Login');
     await expect(page.locator('h1', { hasText: 'Welcome back' })).toBeVisible();
   });
 
